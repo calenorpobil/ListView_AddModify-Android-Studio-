@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">ListView_AddModify</string>
+    <string name="alta">ALTA</string>
+    <string name="salir">SALIR</string>
+    <string name="a_ade_y_modifica_alummnos">Añade y modifica alummnos</string>
+    <string name="item1">Item1</string>
+    <string name="item2">Item 2</string>
+    <string name="crear">Crear</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="nombre">Nombre</string>
+</resources>
