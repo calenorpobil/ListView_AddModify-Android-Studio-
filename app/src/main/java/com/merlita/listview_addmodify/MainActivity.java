@@ -29,19 +29,19 @@ import androidx.core.view.WindowInsetsCompat;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+
 
 public class MainActivity extends AppCompatActivity
-{
+        implements FragmentoPersonalizado.MensajeItem {
     TextView tv;
     ListView lv;
     AdaptadorTitulares adaptadorTitulares;
     Button btAlta, btSalir;
 
 
-    private final Titular[] datos =
-            new Titular[]{
-                    new Titular("Sin ítems", "Añade un ítem desde el menú")};
-
+    private final ArrayList<Titular> datos =
+            new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +49,10 @@ public class MainActivity extends AppCompatActivity
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
+        datos.add(new Titular("Sin ítems", "Añade un ítem desde el menú"));
+
         lv = findViewById(R.id.listView);
-        adaptadorTitulares = new AdaptadorTitulares(this, datos);
+        tv = findViewById(R.id.tvTituloMain);
         btAlta = findViewById(R.id.btAlta);
         btSalir = findViewById(R.id.btSalir);
 
@@ -76,13 +78,18 @@ public class MainActivity extends AppCompatActivity
                 FragmentoPersonalizado f2b = new FragmentoPersonalizado();
                 Bundle bundle = new Bundle();
                 bundle.putString("mensajeInput", "Introduce el nombre del alumno: ");
+                f2b.setArguments(bundle);
                 f2b.show(getSupportFragmentManager(),"xxx");
             }
         });
 
-
-        lv.setAdapter(adaptadorTitulares);
+        hacerLista();
         registerForContextMenu(lv);
+    }
+
+    private void hacerLista() {
+        adaptadorTitulares = new AdaptadorTitulares(this, datos);
+        lv.setAdapter(adaptadorTitulares);
     }
 
     @Override
@@ -94,8 +101,6 @@ public class MainActivity extends AppCompatActivity
                 (AdapterView.AdapterContextMenuInfo) menuInfo;
         menu.setHeaderTitle(lv.getAdapter().getItem(informacionItem.position).toString());
         inflador.inflate(R.menu.menu_contextual, menu);
-
-
     }
 
     @Override
@@ -118,9 +123,15 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public void mensajeItem(String mensaje) {
+        datos.add(new Titular(mensaje, mensaje));
+        hacerLista();
+    }
+
     class AdaptadorTitulares extends ArrayAdapter<Titular> {
-        Titular[] datos;
-        public AdaptadorTitulares(Context context, Titular[] datos) {
+        ArrayList<Titular> datos;
+        public AdaptadorTitulares(Context context, ArrayList<Titular> datos) {
             super(context, R.layout.layout, datos);
             this.datos = datos;
         }
@@ -140,8 +151,8 @@ public class MainActivity extends AppCompatActivity
                 contenedor = (ViewHolder)item.getTag();
             }
 
-            contenedor.title.setText(datos[position].getTitle());
-            contenedor.subtitle.setText(datos[position].getSubtitle());
+            contenedor.title.setText(datos.get(position).getTitle());
+            contenedor.subtitle.setText(datos.get(position).getSubtitle());
 
             return(item);
         }
