@@ -8,4 +8,5 @@
     <string name="crear">Crear</string>
     <string name="cancelar">Cancelar</string>
     <string name="nombre">Nombre</string>
+    <string name="nota">Nota</string>
 </resources>

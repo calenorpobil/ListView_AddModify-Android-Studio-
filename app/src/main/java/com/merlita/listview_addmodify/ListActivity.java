@@ -120,7 +120,7 @@ public class ListActivity extends AppCompatActivity
             }
 
             contenedor.title.setText(datos[position].getTitle());
-            contenedor.subtitle.setText(datos[position].getSubtitle());
+            contenedor.subtitle.setText(datos[position].getNota());
 
             return(item);
         }

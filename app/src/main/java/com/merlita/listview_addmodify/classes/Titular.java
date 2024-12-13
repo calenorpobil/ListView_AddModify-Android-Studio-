@@ -1,13 +1,24 @@
 package com.merlita.listview_addmodify.classes;
 
 public class Titular {
-    String title, subtitle;
+    String title;
+    double nota;
 
     public Titular(String title, String subtitle) {
         setTitle(title);
-        setSubtitle(subtitle);
+        setNota(subtitle);
     }
 
+    public boolean getRojo(){
+        try{
+            if(nota<5){
+                return true;
+            }
+        }catch(NumberFormatException ex){
+
+        }
+        return (false);
+    }
 
     public String getTitle() {
         return title;
@@ -17,11 +28,11 @@ public class Titular {
         this.title = title;
     }
 
-    public String getSubtitle() {
-        return subtitle;
+    public String getNota() {
+        return nota+"";
     }
 
-    public void setSubtitle(String subtitle) {
-        this.subtitle = subtitle;
+    public void setNota(String nota) {
+        this.nota = Double.parseDouble(nota);
     }
 }

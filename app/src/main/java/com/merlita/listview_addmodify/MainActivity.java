@@ -1,8 +1,9 @@
 package com.merlita.listview_addmodify;
 
+
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.text.Layout;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -12,22 +13,17 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 
-import com.merlita.*;
 import com.merlita.listview_addmodify.classes.Titular;
 import com.merlita.listview_addmodify.dialogs.FragmentoPersonalizado;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -38,9 +34,14 @@ public class MainActivity extends AppCompatActivity
     ListView lv;
     AdaptadorTitulares adaptadorTitulares;
     Button btAlta, btSalir;
+    Titular auxiliar = new Titular(
+            "Sin ítems",
+            "-1");
 
 
     private final ArrayList<Titular> datos =
+            new ArrayList<>();
+    private final ArrayList<Titular> datosVacio =
             new ArrayList<>();
 
     @Override
@@ -49,46 +50,55 @@ public class MainActivity extends AppCompatActivity
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        datos.add(new Titular("Sin ítems", "Añade un ítem desde el menú"));
+        datosVacio.add(auxiliar);
 
         lv = findViewById(R.id.listView);
         tv = findViewById(R.id.tvTituloMain);
         btAlta = findViewById(R.id.btAlta);
         btSalir = findViewById(R.id.btSalir);
 
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                //Alternativa 1:
-                /*String opcionSeleccionada =
-                        ((Titular)adapterView.getItemAtPosition(i)).getTitle();
-                tv.setText(opcionSeleccionada);*/
-
-                //Alternativa 2:
-                String opcionSeleccionada =
-                        ((TextView)view.findViewById(R.id.tvTitulo))
-                                .getText().toString();
-                tv.setText(opcionSeleccionada);
-            }
-        });
 
         btAlta.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FragmentoPersonalizado f2b = new FragmentoPersonalizado();
-                Bundle bundle = new Bundle();
-                bundle.putString("mensajeInput", "Introduce el nombre del alumno: ");
-                f2b.setArguments(bundle);
-                f2b.show(getSupportFragmentManager(),"xxx");
+                dialogoInput("Introduce el nombre del alumno: ", "", "", -1);
             }
         });
 
-        hacerLista();
+        hacerListaVacia();
         registerForContextMenu(lv);
+    }
+
+    private void dialogoInput(String titulo, String nombre, String nota, int i) {
+        FragmentoPersonalizado f2b = new FragmentoPersonalizado();
+        Bundle bundle = new Bundle();
+        bundle.putString("mensajeInput", titulo);
+        bundle.putString("nombre", nombre);
+        bundle.putString("nota", nota);
+        bundle.putInt("numLista", i);
+        f2b.setArguments(bundle);
+        f2b.show(getSupportFragmentManager(),"xxx");
     }
 
     private void hacerLista() {
         adaptadorTitulares = new AdaptadorTitulares(this, datos);
+        lv.setAdapter(adaptadorTitulares);
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String nombre =((TextView)view.findViewById(R.id.tvTitulo))
+                        .getText().toString();
+                String nota = ((TextView)view.findViewById(R.id.tvSubTitulo))
+                        .getText().toString();
+                String opcionSeleccionada = "Nuevo nombre para "+nombre+": ";
+                dialogoInput(opcionSeleccionada, nombre, nota, i);
+
+
+            }
+        });
+    }
+    private void hacerListaVacia() {
+        adaptadorTitulares = new AdaptadorTitulares(this, datosVacio);
         lv.setAdapter(adaptadorTitulares);
     }
 
@@ -124,8 +134,17 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void mensajeItem(String mensaje) {
-        datos.add(new Titular(mensaje, mensaje));
+    public void mensajeItem(String[] mensaje, int i) {
+        if(datos.size()==0){
+            hacerListaVacia();
+        }else{
+            hacerLista();
+        }
+        if(i==-1){
+            datos.add(new Titular(mensaje[0], mensaje[1]));
+        }else{
+            datos.set(i, new Titular(mensaje[0], mensaje[1]));
+        }
         hacerLista();
     }
 
@@ -134,6 +153,7 @@ public class MainActivity extends AppCompatActivity
         public AdaptadorTitulares(Context context, ArrayList<Titular> datos) {
             super(context, R.layout.layout, datos);
             this.datos = datos;
+
         }
 
         public View getView(int position, View convertView, ViewGroup parent) {
@@ -146,13 +166,21 @@ public class MainActivity extends AppCompatActivity
                 contenedor = new ViewHolder();
                 contenedor.title =(TextView)item.findViewById(R.id.tvTitulo);
                 contenedor.subtitle = (TextView)item.findViewById(R.id.tvSubTitulo);
+                contenedor.img = (ImageView)item.findViewById(R.id.imagen);
                 item.setTag(contenedor);
             }else{
                 contenedor = (ViewHolder)item.getTag();
             }
 
             contenedor.title.setText(datos.get(position).getTitle());
-            contenedor.subtitle.setText(datos.get(position).getSubtitle());
+            contenedor.subtitle.setText(datos.get(position).getNota());
+            if(datos.get(position).getRojo()){
+                contenedor.img.setImageResource(R.drawable.no);
+                contenedor.subtitle.setTextColor(Color.parseColor("Red"));
+            }else{
+                contenedor.img.setImageResource(R.drawable.ok);
+                contenedor.subtitle.setTextColor(Color.parseColor("Green"));
+            }
 
             return(item);
         }
@@ -160,6 +188,7 @@ public class MainActivity extends AppCompatActivity
 
         class ViewHolder{
             TextView title, subtitle;
+            ImageView img;
         }
     }
 
