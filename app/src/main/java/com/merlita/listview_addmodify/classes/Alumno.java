@@ -28,8 +28,8 @@ public class Titular {
         this.title = title;
     }
 
-    public String getNota() {
-        return nota+"";
+    public double getNota() {
+        return nota;
     }
 
     public void setNota(String nota) {
